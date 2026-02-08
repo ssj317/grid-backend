@@ -23,12 +23,26 @@ export const setupSocket = (io) => {
           socket.emit("capture_failed", { blockId });
         }
       } catch (error) {
-        console.error("❌ Capture error:", error.message);
+        console.error(" Capture error:", error.message);
+      }
+    });
+
+        socket.on("reset_board", async () => {
+      try {
+        console.log(" Resetting board...");
+
+        await Block.updateMany({}, { owner: null, color: null });
+
+        const freshBlocks = await Block.find();
+
+        io.emit("board_reset", freshBlocks);
+      } catch (error) {
+        console.error("Reset error:", error.message);
       }
     });
 
     socket.on("disconnect", () => {
-      console.log("🔴 User disconnected:", socket.id);
+      console.log(" User disconnected:", socket.id);
     });
   });
 };
